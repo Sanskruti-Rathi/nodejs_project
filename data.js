@@ -20,7 +20,7 @@ const userschema=new mongoose.Schema({
 
 const  User=mongoose.model('User',userschema);
 
-app.post('/user',async(req,res)=>{
+app.post('/users',async(req,res)=>{
     const user = new User({
         name:req.body.name,
         age:req.body.age,
@@ -35,6 +35,42 @@ app.post('/user',async(req,res)=>{
         res.status(400).json({message:err.message});
      }
 });
+
+app.get('/users',async(req, res)=>{
+    try {
+        const users=await User.find();
+        res.json(users);    
+    }
+    catch(err) {
+        res.status(500).json({message:err.message});
+    }
+});
+
+app.put('/users/:id',async(req,res)=>{
+    try {
+        const user=await User.findById(req.params.id);  
+        user.name=req.body.name;
+        user.age=req.body.age;
+        user.role=req.body.role;
+        const updatedUser=await user.save();
+        res.json(updatedUser);
+    }
+    catch(err) {
+        res.status(400).json({message:err.message});
+    }
+});
+
+app.delete('/users/:id',async(req,res)=>{
+    try {
+        const user=await User.findById(req.params.id);
+        await user.remove();
+        res.json({message:"User deleted"});
+        }
+    catch(err) {
+        res.status(500).json({message:err.message});
+        }
+});
+
 
 app.listen(2000,()=>{
     console.log("Server is running on port 2000");
